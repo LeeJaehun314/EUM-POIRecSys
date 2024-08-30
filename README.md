@@ -3,8 +3,8 @@ Welcome! This repository is for developing general POI (Position of Interest) Re
 
 # Roadmap
 - [X] Setup Github
-- [ ] Review RS papers & Choose candidate models
-- [ ] Choose evaluation method
+- [X] Review RS papers & Choose candidate models
+- [X] Choose evaluation method
 - [ ] Make demo scoring model & test platform
 - [ ] Make demo planning model & test platform
 - [ ] Test three scoring model
