@@ -1,5 +1,5 @@
 # EUM-POIRecSys
-Welcome! This repository is for developing general POI (Position of Interest) Recommendation System with collaboration with EUM-Project.  
+Welcome! This repository is dedicated to the development of a general Position of Interest (POI) Recommendation System in collaboration with the EUM-Project.
 
 # Roadmap
 - [X] Setup Github
