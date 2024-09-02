@@ -5,7 +5,7 @@ Welcome! This repository is for developing general POI (Position of Interest) Re
 - [X] Setup Github
 - [X] Review RS papers & Choose candidate models
 - [X] Choose evaluation method
-- [ ] Make demo scoring model & test platform
+- [X] Make demo scoring model & test platform
 - [ ] Make demo planning model & test platform
 - [ ] Test three scoring model
 - [ ] Test three planning model
