@@ -83,7 +83,14 @@ def planning(poi_ids):
     
     Returns:
     path: list representing the shortest path to visit all POIs
+
+    Note:
+    - The number of POIs to visit should be less than 15 due to the exponential time complexity of the algorithm (~ 0.5 sec for 15 POIs)
     """
+
+    if(len(poi_ids) > 15):
+        print("Too many POIs to visit (>15)")
+        return None
     
     poi_indexes = poi_coords['POI_ID'].searchsorted(poi_ids)
     points = poi_coords.iloc[poi_indexes][['X_COORD', 'Y_COORD']].values
@@ -99,6 +106,7 @@ def planning(poi_ids):
 # Randomly select 5 POIs to visit
 poi_indexes = [123, 2341, 345, 234, 1234]
 poi_ids = poi_coords['POI_ID'][poi_indexes].tolist()
+print(poi_ids)
 start = time.time()
 path = planning(poi_ids)
 end = time.time()
