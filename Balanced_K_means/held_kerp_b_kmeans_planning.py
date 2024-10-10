@@ -5,7 +5,7 @@ import time
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-# !! This code is basically the same as held_kerp_b_knn_planning_test.ipynb. Please see the test result over there and check if it works well. !!
+# !! This code is basically the same as held_kerp_b_kmeans_planning_test.ipynb. Please see the test result over there and check if it works well. !!
 
 # -----------------------------------------------------------------------------
 # Algorithms
