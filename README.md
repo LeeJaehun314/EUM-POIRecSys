@@ -6,8 +6,8 @@ Welcome! This repository is dedicated to the development of a general Position o
 - [X] Review RS papers & Choose candidate models
 - [X] Choose evaluation method
 - [X] Make demo scoring model & test platform
-- [ ] Make demo planning model & test platform
-- [ ] Test three scoring model
+- [X] Make demo planning model & test platform
+- [X] Test three scoring model
 - [ ] Test three planning model
 - [ ] Conclude the result
 - [ ] Make FastAPI interface
