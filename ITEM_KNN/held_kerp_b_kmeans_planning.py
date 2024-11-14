@@ -183,7 +183,7 @@ poi_coords = pd.read_csv('../TSP/poi_coords.csv')
 # Planning Function
 # -----------------------------------------------------------------------------
 
-def planning(poi_ids, n_clusters):
+def planning(place_infos, n_clusters):
     """
     Planning
     
@@ -195,11 +195,9 @@ def planning(poi_ids, n_clusters):
     paths: list of paths for each cluster
     """
 
-    poi_ids = [str(poi) for poi in poi_ids]
+    poi_ids = [str(place[0]) for place in place_infos]
+    points = [[place[1], place[2]] for place in place_infos]
     
-    poi_idxes = poi_coords['POI_ID'].searchsorted(poi_ids)
-    points = poi_coords.iloc[poi_idxes][['X_COORD', 'Y_COORD']].values
-
     # Perform balanced K-means clustering
     labels, _ = balanced_kmeans(points, n_clusters)
 
@@ -214,10 +212,8 @@ def planning(poi_ids, n_clusters):
         path, _ = held_karp(adj_matrix, is_closed=True)
 
         # path의 인덱스를 실제 POI_ID 값으로 변환하고 POI_NM 값을 가져오기
-        ordered_poi_ids = cluster_ids[path].tolist()
-        temp = []
-        for poi_id in ordered_poi_ids:
-            temp.append(poi_coords.loc[poi_coords['POI_ID'] == poi_id, ["POI_NM", "X_COORD", "Y_COORD"]].values[0].tolist())
-        paths.append(temp)
+        ordered_place_ids = cluster_ids[path].tolist()
+        for place_id in ordered_place_ids:
+            paths.append(place_id)
     
     return paths

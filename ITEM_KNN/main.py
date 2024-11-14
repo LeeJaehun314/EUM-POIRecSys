@@ -34,24 +34,22 @@ class RecommendationResponse(BaseModel):
 
 # 경로 생성 API 입출력 데이터 모델 정의
 class RouteCandidateRequest(BaseModel):
-    poi_items: List[str] = Field(..., example=["POI01000000009OTM", "POI01000000000XF8","POI01000000000196", "POI010000000003QP", "POI010000000014QR", "POI010000000002ZX"],
-                                    description="경로 생성에 필요한 노드(장소) ID 리스트")
-    n_clusters: int = Field(..., example=3, description="클러스터링 개수")
+    placeIds: List[List] = Field(..., example=[[123, 126.613907321, 35.959963434], [456, 126.437852644, 36.820256245], 
+                                                              [678, 128.300164996, 35.899503476], [789, 120.457896355, 39.820256245]],
+                                    description="경로 생성에 필요한 노드(장소) [ID, X 좌표, Y 좌표] 리스트")
+    numCluster: int = Field(..., example=2, description="클러스터링 개수(총 여행 일수)")
     
     class Config:
         strict = True
         
 class RouteClusterReponse(BaseModel):
-    paths: List[List] = Field(..., example=[
-        [["오지평야", 126.437852644, 36.820256245], ["옥구평야", 126.613907321, 35.959963434], ["오지평야",126.437852644,36.820256245]],
-        [["만수앞들", 126.673272889, 37.604314536], ["윗길앞들", 126.810854501, 37.461667414], ["만수앞들", 126.673272889, 37.604314536]],
-        [["방구바위들", 128.300164996, 35.899503476], ["남산벌", 128.331245425, 35.294239006], ["방구바위들", 128.300164996, 35.899503476]]])
+    paths: List[List] = Field(..., example=[[123, 456, 123], [678, 789, 678]])
 
 # 추천 API
 @app.post("/recommend", response_model=RecommendationResponse, summary="추천 받기", description="사용자 ID를 입력받아 추천 아이템 리스트를 반환합니다.")
 def recommend(request: RecommendationRequest):
     user_id = request.userId
-    item_id = request.placeIds
+    place_ids = request.placeIds
     k = request.numPlaceRec
     
     result = set()
@@ -74,16 +72,16 @@ def recommend(request: RecommendationRequest):
 # 경로 생성 API
 @app.post("/route", response_model=RouteClusterReponse, summary="경로 생성하기", description="장소 ID를 입력받아 경로 클러스터링을 생성합니다.")
 def find_optimal_route(request: RouteCandidateRequest):
-    poi_list = request.poi_items
-    num = request.n_clusters
+    place_infos = request.placeIds
+    num = request.numCluster
     
     try: 
-        paths = planning(poi_ids=poi_list, n_clusters=num)
+        paths = planning(place_infos=place_infos, n_clusters=num)
         
         if not paths:
             raise HTTPException(status_code=404, detail="No routes found for the given poi list.")
         
-        return {"paths": paths}
+        return JSONResponse(content={"paths": paths})
     except Exception as e:
         logger.error(str(e))
         raise HTTPException(status_code=500, detail=str(e))
