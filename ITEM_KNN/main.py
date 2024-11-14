@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+
 from pydantic import BaseModel, Field
 
 from held_kerp_b_kmeans_planning import *
@@ -21,15 +23,14 @@ with open("./save_models/ITEMKNN-BM25/item_knn_bm25_model.pkl", "rb") as f:
 
 # 추천 API 입출력 데이터 모델 정의
 class RecommendationRequest(BaseModel):
-    user_id: str = Field(..., example="e000004", description="추천을 받을 사용자의 ID")
-    num: int = Field(..., example=5, ge=1, le=10, description="추천받을 아이템의 수")
-    item_id: int = Field(..., example=2304300002)
+    userId: int = Field(..., example=1234, description="추천을 받을 사용자의 ID")
+    numPlaceRec: int = Field(..., example=5, ge=1, le=10, description="추천받을 유사 장소의 수")
+    placeIds: List[int] = Field(..., example=[2304300002, 2304300001, 2304300004], description="유저가 일정에 추가한 장소 ID list")
 
 class RecommendationResponse(BaseModel):
-    user_id: str = Field(..., example="e000004", description="추천을 요청한 사용자의 ID")
-    recommended: List[int] = Field(..., example=[2305010002, 2304300001, 2304300004, 2304300006, 2304300003], 
+    userId: int = Field(..., example=1234, description="추천을 요청한 사용자의 ID")
+    recPlacedIds: List[int] = Field(..., example=[2305010002, 2304300001, 2304300004, 2304300006, 2304300003], 
                                         description="추천된 아이템 ID 리스트")
-    score: float = Field(..., example=3.49340373257926)
 
 # 경로 생성 API 입출력 데이터 모델 정의
 class RouteCandidateRequest(BaseModel):
@@ -49,24 +50,26 @@ class RouteClusterReponse(BaseModel):
 # 추천 API
 @app.post("/recommend", response_model=RecommendationResponse, summary="추천 받기", description="사용자 ID를 입력받아 추천 아이템 리스트를 반환합니다.")
 def recommend(request: RecommendationRequest):
-    user_id = request.user_id
-    item_id = request.item_id
-    k = request.num
+    user_id = request.userId
+    item_id = request.placeIds
+    k = request.numPlaceRec
     
-    # 모델을 사용해 예측 수행
+    result = set()
+    
+    # 모델을 사용해 예측 수행 -> user-based inference
     try:
         recommended_places = model.recommend(user_id=user_id, k=k)
-        item_idx = model.item_ids.index(item_id)
-        user_idx = model.user_ids.index(user_id)
+        # item_idx = model.item_ids.index(item_id)
+        # user_idx = model.user_ids.index(user_id)
 
-        score = model.score(user_idx, item_idx)
+        # score = model.score(user_idx, item_idx)
         logger.info(recommended_places)
-        if (not recommended_places) or (not score):  # 추천 결과가 없으면 404 에러 발생
-            raise HTTPException(status_code=404, detail="No recommendations found for the given user_id.")
+        if not recommended_places:  # 추천 결과가 없으면 404 에러 발생
+            raise HTTPException(status_code=404, detail="No recommendations found for the given userId.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-    return {"user_id": user_id, "score": score, "recommended": recommended_places}
+    return JSONResponse(content={"userId": user_id, "recPlaceIds": recommended_places})
 
 # 경로 생성 API
 @app.post("/route", response_model=RouteClusterReponse, summary="경로 생성하기", description="장소 ID를 입력받아 경로 클러스터링을 생성합니다.")
