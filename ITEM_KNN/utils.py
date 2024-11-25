@@ -5,41 +5,67 @@ from sqlalchemy.future import select
 from config.database import get_db
 from config.models import *
 
-async def find_most_similar_users(user_id: int, max_popular_local=5, cnt=5):
-    # cheap_or_expensive, planned_or_improvise, popular_or_local
+# 타겟 유저와 다른 유저들 간의 유사도 계산하기
+async def find_most_similar_users(user_id: int, max_diff=5, cnt=5):
     async for session in get_db():  
-        # Fetch user's preferences
-        user_pref = await session.execute(
-            select(Preference).where(Preference.id == user_id)
-        )
-        user_pref = user_pref.scalars().first()
+        result = await session.execute(select(Preference))
+        all_users = result.scalars().all()
+
+        user_pref = next((user for user in all_users if user.id == user_id), None)
         if not user_pref:
             raise ValueError(f"User with ID {user_id} not found.")
-
-        # Filter users with identical preferred_companions
-        other_users = await session.execute(
-            select(Preference).where(
-                Preference.id != user_id,
-                Preference.preferred_companions == user_pref.preferred_companions
-            )
-        )
-        other_users = other_users.scalars().all()
+        
+        other_users = [user for user in all_users if user.id != user_id]
 
         if not other_users:
             return []
 
-        # Calculate similarities (비동기 유사도 계산 로직)
         similarities = []
         for user in other_users:
+            diff_cheap = abs(user_pref.cheap_or_expensive - user.cheap_or_expensive)
+            diff_plan = abs(user_pref.planned_or_improvise - user.planned_or_improvise)
             diff_popular = abs(user_pref.popular_or_local - user.popular_or_local)
-            normalized_similarity = 1 - (diff_popular / max_popular_local)
-            similarities.append((user.id, normalized_similarity))
+            diff_nature = abs(user_pref.nature_or_city - user.nature_or_city)
 
-        # Find the highest similarity score
-        most_similar_users = [user for user, _ in sorted(similarities, key=lambda x:-x[1])][:cnt]
+            similarity_cheap = 1 - (diff_cheap / max_diff)
+            similarity_plan = 1 - (diff_plan / max_diff)
+            similarity_popular = 1 - (diff_popular / max_diff)
+            similarity_nature = 1 - (diff_nature / max_diff)
+
+            total_similarity = (
+                0.25 * similarity_cheap +
+                0.25 * similarity_plan +
+                0.25 * similarity_popular +
+                0.25 * similarity_nature
+            )
+            similarities.append((user.id, round(total_similarity, 3)))
+
+        most_similar_users = [user_id for user_id, _ in sorted(similarities, key=lambda x: -x[1])][:cnt]
 
         return most_similar_users
 
-if __name__ == "__main__":
-    result = asyncio.run(find_most_similar_users(8, 5))
-    pprint.pprint(result)
+
+# 타겟 유저가 저장한 장소명 불러오기 - 테스트용
+async def find_places_from_target_users(user_id: int):
+    async for session in get_db():
+        result = await session.execute(
+            select(Place.name)
+            .join(FolderPlace, FolderPlace.place_id == Place.id)
+            .join(Folder, Folder.id == FolderPlace.folder_id)
+            .where(Folder.user_id == user_id)
+        )
+        place_result = result.scalars().all()
+        return place_result
+
+
+# 타겟 유저와 유사도가 높은 사용자들이 저장한 장소 리스트 불러오기
+async def recommend_places_from_filtered_users(user_list: list):
+    async for session in get_db():
+        result = await session.execute(
+            select(Place.name)
+            .join(FolderPlace, FolderPlace.place_id == Place.id)
+            .join(Folder, Folder.id == FolderPlace.folder_id)
+            .where(Folder.user_id.in_(user_list))
+        )
+        name_list = result.scalars().all()
+        return name_list
