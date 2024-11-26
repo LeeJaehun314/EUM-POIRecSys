@@ -185,18 +185,22 @@ poi_coords = pd.read_csv('../TSP/poi_coords.csv')
 
 def planning(place_infos, n_clusters):
     """
-    Planning
+    Planning with the first location as a fixed start and end point (accomodation)
     
     Parameters:
-    poi_ids: list of POI IDs to visit
+    place_infos: list of POI IDs and their coordinates
     n_clusters: number of clusters for balanced K-means
     
     Returns:
-    paths: list of paths for each cluster
+    paths: list of paths for each cluster starting and ending with accomodation
     """
-
-    poi_ids = [str(place[0]) for place in place_infos]
-    points = [[place[1], place[2]] for place in place_infos]
+    # Separate accomodation and other points
+    accomo_id = str(place_infos[0][0])
+    accomo_coords = [place_infos[0][1], place_infos[0][2]]
+    
+    other_place_infos = place_infos[1:]
+    poi_ids = [str(place[0]) for place in other_place_infos]
+    points = [[place[1], place[2]] for place in other_place_infos]
     
     # Perform balanced K-means clustering
     labels, _ = balanced_kmeans(points, n_clusters)
@@ -205,15 +209,18 @@ def planning(place_infos, n_clusters):
     paths = []
     for c in range(n_clusters):
         mask = (labels == c)
-        cluster_points = points[mask]
+        cluster_points = np.array(points)[mask]
         cluster_ids = np.array(poi_ids)[mask]
-
-        adj_matrix = points_to_adj_matrix(cluster_points)
+        
+        # Include 숙소 in the cluster points for TSP calculation
+        cluster_points_with_숙소 = np.vstack([accomo_coords, cluster_points])
+        adj_matrix = points_to_adj_matrix(cluster_points_with_숙소)
+        
+        # Solve TSP (with 숙소 at the start and end)
         path, _ = held_karp(adj_matrix, is_closed=True)
-
-        # path의 인덱스를 실제 POI_ID 값으로 변환하고 POI_NM 값을 가져오기
-        ordered_place_ids = cluster_ids[path].tolist()
-        for place_id in ordered_place_ids:
-            paths.append(place_id)
+        
+        # Map path indices to actual POI IDs (starting and ending with 숙소)
+        ordered_place_ids = [accomo_id] + cluster_ids[path[1:-1] - 1].tolist() + [숙소_id]
+        paths.append(ordered_place_ids)
     
     return paths

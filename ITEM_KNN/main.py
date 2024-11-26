@@ -66,8 +66,9 @@ async def recommend(request: RecommendationRequest):
     return JSONResponse(content={"userId": user_id, "recPlaceIds": recommended_places})
 
 # 경로 생성 API
-@app.post("/route", response_model=RouteClusterReponse, summary="경로 생성하기", description="장소 ID를 입력받아 경로 클러스터링을 생성합니다.")
+@app.post("/route", response_model=RouteClusterReponse, summary="경로 생성하기", description="장소 ID를 입력받아 경로 클러스터링을 생성합니다. 이때 전체 여행 일정들은 숙소에서 출발 및 도착을 보장합니다.")
 def find_optimal_route(request: RouteCandidateRequest):
+    # 첫 번째 placePosInfo 객체는 숙소로 고정
     place_infos = request.placeIds
     num = request.numCluster
     
