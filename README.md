@@ -8,9 +8,9 @@ Welcome! This repository is dedicated to the development of a general Position o
 - [X] Make demo scoring model & test platform
 - [X] Make demo planning model & test platform
 - [X] Test three scoring model
-- [ ] Test three planning model
-- [ ] Conclude the result
-- [ ] Make FastAPI interface
+- [X] Test three planning model
+- [X] Conclude the result
+- [X] Make FastAPI interface
 - [ ] Deploy to AWS EC2
 - [ ] Model serving optimization 
 - [ ] Make a MLOps system
