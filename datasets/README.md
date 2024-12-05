@@ -3,7 +3,7 @@
 
 1. 다음 명령어를 통해 데이터를 다운로드 합니다.
 
-    /dataset_downloader AIHUB_ID 'AIHUB_PW'
+    ./dataset_downloader AIHUB_ID 'AIHUB_PW'
 
 
 # 다운로드 세부 단계
@@ -18,32 +18,28 @@
 
     ubuntu run 
 
-3. 데이터셋 폴더로 이동
-
-    cd dataset
-
-4. 다음 명령어로 aihubshell 다운로드
+3. 다음 명령어로 aihubshell 다운로드
 
     curl -o "aihubshell" https://api.aihub.or.kr/api/aihubshell.do
 
-5. aihub 로그인 정보 설정  
+4. aihub 로그인 정보 설정  
 
     export AIHUB_ID=로그인_이메일  
     export AIHUB_PW='로그인_비밀번호'
 
-6. 2023 수도권 데이터셋(datasetkey: 71776) 다운로드 (이미지 제외)
+5. 2023 수도권 데이터셋(datasetkey: 71776) 다운로드 (이미지 제외, GPS 데이터 제외)
 
-    ./aihubshell -mode d -datasetkey 71776 -filekey 539782,539784,539785,539787,539788
+    ./aihubshell -mode d -datasetkey 71776 -filekey 539782,539784,539787
 
-7. 2023 제주도 데이터셋(datasetkey: 71780) 다운로드 (이미지 제외)
+6. 2023 제주도 데이터셋(datasetkey: 71780) 다운로드 (이미지 제외, GPS 데이터 제외)
 
-    ./aihubshell -mode d -datasetkey 71780 -filekey 541665,541667,541668,541670,541671
+    ./aihubshell -mode d -datasetkey 71780 -filekey 541665,541667,541670
 
-8. 데이터 압축 풀기
+7. 데이터 압축 풀기
 
     find . -type f -name "*.zip" -exec sh -c 'for zip_file; do folder_name="${zip_file%.zip}"; echo "Unzipping $zip_file to $folder_name..."; mkdir -p "$folder_name" && 7z x "$zip_file" -o"$folder_name"; done' _ {} +
 
-9. (필요시) zip 파일 삭제
+8. (필요시) zip 파일 삭제
 
     find . -type f -name "*.zip" -delete
 

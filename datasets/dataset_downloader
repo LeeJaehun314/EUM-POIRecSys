@@ -49,17 +49,17 @@ echo "Setting AIHUB login information..."
 export AIHUB_ID=$LOGIN_ID
 export AIHUB_PW=$PASSWORD
 
-# 6. Download 수도권 dataset (datasetkey: 71776, 이미지 제외)
+# 6. Download 수도권 dataset (datasetkey: 71776, 이미지 제외, GPS 데이터 제외)
 echo "Downloading 수도권 dataset..."
-./aihubshell -mode d -datasetkey 71776 -filekey 539782,539784,539785,539787,539788
+./aihubshell -mode d -datasetkey 71776 -filekey 539782,539784,539787
 if [ $? -ne 0 ]; then
   echo "Failed to download 수도권 dataset"
   exit 1
 fi
 
-# 7. Download 제주도 dataset (datasetkey: 71780, 이미지 제외)
+# 7. Download 제주도 dataset (datasetkey: 71780, 이미지 제외, GPS 데이터 제외)
 echo "Downloading 제주도 dataset..."
-./aihubshell -mode d -datasetkey 71780 -filekey 541665,541667,541668,541670,541671
+./aihubshell -mode d -datasetkey 71780 -filekey 541665,541667,541670
 if [ $? -ne 0 ]; then
   echo "Failed to download 제주도 dataset"
   exit 1
