@@ -176,7 +176,7 @@ def balanced_kmeans(X, k, max_iter=100, tol=1e-4):
 # -----------------------------------------------------------------------------
 
 # File loading will take some time, so it is better to load the file only once
-poi_coords = pd.read_csv('../TSP/poi_coords.csv')
+poi_coords = pd.read_csv('./planning_models/tsp/poi_coords.csv')
 
 
 # -----------------------------------------------------------------------------
