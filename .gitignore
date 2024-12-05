@@ -164,9 +164,9 @@ cython_debug/
 # Dataset
 
 # Ignore everything in the dataset/ directory
-dataset/*
+datasets/*
 
 # Except README.md and aihubshell
-!dataset/README.md
-!dataset/aihubshell
-!dataset/dataset_downloader
+!datasets/README.md
+!datasets/aihubshell
+!datasets/dataset_downloader
