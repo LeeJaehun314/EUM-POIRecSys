@@ -1,6 +1,11 @@
 # EUM-POIRecSys
 Welcome! This repository is dedicated to the development of a general Position of Interest (POI) Recommendation System in collaboration with the EUM-Project.
 
+# How to use
+- For API endpoint, check main.py
+- For scoring and planning model, check scoring_models/ and planning_models/
+- For datasets, check datasets/ and to download dataset from AI-HUB, follow the instruction at datasets/README.md
+
 # Roadmap
 - [X] Setup Github
 - [X] Review RS papers & Choose candidate models
@@ -8,9 +13,9 @@ Welcome! This repository is dedicated to the development of a general Position o
 - [X] Make demo scoring model & test platform
 - [X] Make demo planning model & test platform
 - [X] Test three scoring model
-- [ ] Test three planning model
-- [ ] Conclude the result
-- [ ] Make FastAPI interface
+- [X] Test three planning model
+- [X] Conclude the result
+- [X] Make FastAPI interface
 - [ ] Deploy to AWS EC2
 - [ ] Model serving optimization 
 - [ ] Make a MLOps system

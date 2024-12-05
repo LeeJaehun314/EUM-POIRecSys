@@ -124,10 +124,8 @@ celerybeat.pid
 # Environments
 .env
 .venv
-.venv_debug
 env/
 venv/
-venv_debug/
 ENV/
 env.bak/
 venv.bak/
@@ -163,4 +161,12 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-ITEM_KNN/.env
+# Dataset
+
+# Ignore everything in the dataset/ directory
+datasets/*
+
+# Except README.md and aihubshell
+!datasets/README.md
+!datasets/aihubshell
+!datasets/dataset_downloader

@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# Check if login ID and password are provided
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <login_id> <password>"
+  exit 1
+fi
+
+LOGIN_ID=$1
+PASSWORD=$2
+
+# Install 7zip if not already installed
+echo "Checking for 7zip installation..."
+if ! command -v 7z &> /dev/null; then
+  echo "7zip is not installed. Installing..."
+  if [ "$(uname)" == "Darwin" ]; then
+    # macOS
+    brew install p7zip || { echo "Failed to install 7zip on macOS. Please install it manually."; exit 1; }
+  elif [ -f /etc/debian_version ]; then
+    # Debian/Ubuntu
+    sudo apt update && sudo apt install -y p7zip-full || { echo "Failed to install 7zip on Debian/Ubuntu. Please install it manually."; exit 1; }
+  elif [ -f /etc/redhat-release ]; then
+    # RedHat/CentOS
+    sudo yum install -y p7zip || { echo "Failed to install 7zip on RedHat/CentOS. Please install it manually."; exit 1; }
+  else
+    echo "Unsupported OS. Please install 7zip manually."
+    exit 1
+  fi
+else
+  echo "7zip is already installed."
+fi
+
+# 4. Download aihubshell if it doesn't already exist
+if [ ! -f "aihubshell" ]; then
+  echo "Downloading aihubshell..."
+  curl -o "aihubshell" https://api.aihub.or.kr/api/aihubshell.do
+  if [ $? -ne 0 ]; then
+    echo "Failed to download aihubshell"
+    exit 1
+  fi
+  # Make aihubshell executable
+  chmod +x aihubshell
+else
+  echo "aihubshell already exists. Skipping download."
+fi
+
+# 5. Set AIHUB login information
+echo "Setting AIHUB login information..."
+export AIHUB_ID=$LOGIN_ID
+export AIHUB_PW=$PASSWORD
+
+# 6. Download 수도권 dataset (datasetkey: 71776, 이미지 제외, GPS 데이터 제외)
+echo "Downloading 수도권 dataset..."
+./aihubshell -mode d -datasetkey 71776 -filekey 539782,539784,539787
+if [ $? -ne 0 ]; then
+  echo "Failed to download 수도권 dataset"
+  exit 1
+fi
+
+# 7. Download 제주도 dataset (datasetkey: 71780, 이미지 제외, GPS 데이터 제외)
+echo "Downloading 제주도 dataset..."
+./aihubshell -mode d -datasetkey 71780 -filekey 541665,541667,541670
+if [ $? -ne 0 ]; then
+  echo "Failed to download 제주도 dataset"
+  exit 1
+fi
+
+# 8. Unzip all zip files to folders with the same name
+echo "Unzipping all .zip files into same-named folders using 7zip..."
+find . -type f -name "*.zip" | while read -r zip_file; do
+  folder_name="${zip_file%.zip}"  # Get the folder name by removing the .zip extension
+  echo "Unzipping $zip_file to $folder_name..."
+  mkdir -p "$folder_name"  # Create the folder if it doesn't exist
+  7z x "$zip_file" -o"$folder_name"
+  if [ $? -ne 0 ]; then
+    echo "Failed to unzip $zip_file"
+    exit 1
+  fi
+done
+
+echo "All datasets downloaded and unzipped successfully into same-named folders. Original zip files are retained."
